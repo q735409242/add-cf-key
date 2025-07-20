@@ -38,48 +38,53 @@ async function handleTurnUpdate() {
     return `❌ 异常: ${e.message}`;
   }
 
-  // 添加新记录
-  const now = new Date();
-  const remark = `${now.getMonth() + 1}.${now.getDate()}`;
-  await fetch("https://houtai.yunkefu.pro/add_sdk_info/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      channel: "cf",
-      data: {
-        appid: username,
-        certificate: credential,
-        remark: remark,
-        status: "已启用",
-        cookies: ""
-      }
-    })
-  });
-
-  // 查询全部 cf 渠道账号
-  const searchResp = await fetch("https://houtai.yunkefu.pro/search_sdk_info/", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ channel: "cf" })
-  });
-
-  const searchData = await searchResp.json();
-  const all = searchData.data || [];
-  // 把非username的appid取出
-  const toDeleteList = all.filter(item => item.appid !== username);
-
-  // 批量删除旧凭证
-  if (toDeleteList.length > 0) {
-    const appidsToDelete = toDeleteList.map(item => item.appid);
-    await fetch("https://houtai.yunkefu.pro/del_sdk_info/", {
+  // 只有成功获取到TURN信息才继续执行后续操作
+  try {
+    // 添加新记录
+    const now = new Date();
+    const remark = `${now.getMonth() + 1}.${now.getDate()}`;
+    await fetch("https://houtai.yunkefu.pro/add_sdk_info/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         channel: "cf",
-        appids: appidsToDelete
+        data: {
+          appid: username,
+          certificate: credential,
+          remark: remark,
+          status: "已启用",
+          cookies: ""
+        }
       })
     });
-  }
 
-  return "✅ TURN 信息更新完成";
+    // 查询全部 cf 渠道账号
+    const searchResp = await fetch("https://houtai.yunkefu.pro/search_sdk_info/", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ channel: "cf" })
+    });
+
+    const searchData = await searchResp.json();
+    const all = searchData.data || [];
+    // 把非username的appid取出
+    const toDeleteList = all.filter(item => item.appid !== username);
+
+    // 批量删除旧凭证
+    if (toDeleteList.length > 0) {
+      const appidsToDelete = toDeleteList.map(item => item.appid);
+      await fetch("https://houtai.yunkefu.pro/del_sdk_info/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel: "cf",
+          appids: appidsToDelete
+        })
+      });
+    }
+
+    return "✅ TURN 信息更新完成";
+  } catch (e) {
+    return `❌ 后续操作失败: ${e.message}`;
+  }
 }
