@@ -1,0 +1,10 @@
+name = "add-cf-key"
+main = "src/worker.js"
+workers_dev = true
+compatibility_date = "2025-05-07"
+
+[triggers]
+crons = [ "0 0 * * *" ]
+
+[observability]
+enabled = true
