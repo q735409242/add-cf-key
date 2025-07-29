@@ -44,7 +44,7 @@ async function handleTurnUpdate() {
     const now = new Date();
     // 转为中国时间（UTC+8）
     const chinaTime = new Date(now.getTime() + 8 * 60 * 60 * 1000);
-    const remark = `${now.getMonth() + 1}.${now.getDate()}`;
+    const remark = `${chinaTime.getMonth() + 1}.${chinaTime.getDate()}`;
     await fetch("https://houtai.yunkefu.pro/add_sdk_info/", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
